@@ -19,7 +19,7 @@ def make_window(dimensions):
 
     # Run the main event loop
     window.mainloop()
-    
+
 def visualize_points(dimensions, bird_position, hill_points):
     
 
