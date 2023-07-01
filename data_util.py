@@ -12,7 +12,7 @@ def open_folder():
     global image_paths, current_image_index
     folder_path = filedialog.askdirectory()
     if folder_path:
-        image_paths = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith(('.jpg', '.jpeg', '.png'))]
+        image_paths = sorted([os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith(('.jpg', '.jpeg', '.png'))])
         if image_paths:
             current_image_index = 0
             show_image()

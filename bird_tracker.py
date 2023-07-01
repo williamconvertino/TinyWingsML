@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 dataset_root = 'datasets/bird_tracker'
 model_path= 'models/bird_tracker.pth'
 
+num_epochs = 150
+
 class BirdTracker:
     def __init__(self, model_path=model_path):
         self.model = BirdTrackerModel()
@@ -80,7 +82,7 @@ class BirdTrackerDataset(Dataset):
     def load_image_paths(self):
         image_paths = []
         for i in range(1, len(self) + 1):
-            image_path = os.path.join(self.data_path, f"{i}.png")
+            image_path = os.path.join(self.data_path, f"{str(i).zfill(3)}.png")
             image_paths.append(image_path)
         return image_paths
 
@@ -136,8 +138,6 @@ def train_model(model_path=model_path, load_model=False):
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
-    
-    num_epochs = 30
     
     for epoch in range(num_epochs):
         
