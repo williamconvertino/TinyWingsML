@@ -10,14 +10,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 dataset_root = 'datasets/bird_tracker'
-model_path= 'models/bird_tracker.pth'
+model_root = 'models/'
+model_name= 'bird_tracker.pth'
 
-num_epochs = 150
+num_epochs = 250
 
 class BirdTracker:
-    def __init__(self, model_path=model_path):
+    def __init__(self, model_name=model_name):
         self.model = BirdTrackerModel()
-        self.model.load_state_dict(torch.load(model_path))
+        self.model.load_state_dict(torch.load(model_root + model_name))
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(self.device)
         self.model.eval()
@@ -117,7 +118,7 @@ class BirdTrackerDataset(Dataset):
 
         return image, coords
     
-def train_model(model_path=model_path, load_model=False):
+def train_model(model_name=model_name, load_model=False):
     
     transform = transforms.Compose([
         transforms.ToPILImage(),
@@ -139,6 +140,9 @@ def train_model(model_path=model_path, load_model=False):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
     
+    count_sub_1 = 0
+    lowest_loss = 20000
+
     for epoch in range(num_epochs):
         
         total_loss = 0.0
@@ -158,15 +162,26 @@ def train_model(model_path=model_path, load_model=False):
 
             total_loss += loss.item()
 
-        print(f'Epoch {epoch + 1}/{num_epochs}, Loss: {total_loss / len(dataloader)}')
+        average_loss = total_loss / len(dataloader)
+
+        print(f'Epoch {epoch + 1}/{num_epochs}, Loss: {average_loss}')
         
+        if average_loss < 1:
+            torch.save(model.state_dict(), 'models/recent_sub_1_v2.pth')
+
+        if average_loss < lowest_loss:
+            lowest_loss = average_loss
+            torch.save(model.state_dict(), 'models/lowest_loss.pth')
+
     # Save the trained model
-    torch.save(model.state_dict(), model_path)
-    print(f"Trained model saved at '{model_path}'")
+    torch.save(model.state_dict(), model_root + model_name)
+    print(f"Trained model saved at '{model_root + model_name}'")
 
 
-def eval_model(model_path=model_path):
+def eval_model(model_name=model_name):
     
+    print(f'Evaluating {model_name}')
+
     # Define data transformations
     transform = transforms.Compose([
         transforms.ToPILImage(),
@@ -180,7 +195,7 @@ def eval_model(model_path=model_path):
 
     # Load the trained model
     model = BirdTrackerModel()
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_root + model_name))
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
@@ -242,7 +257,7 @@ def eval_model(model_path=model_path):
     print('')
 
     # Create a window to display the statistics
-    plt.figure()
+    plt.figure(model_name)
     plt.subplot(1, 2, 1)
     plt.boxplot(x_percent_diff)
     plt.title('X Percent Difference')
@@ -252,5 +267,8 @@ def eval_model(model_path=model_path):
     plt.show()
 
 if (__name__ == '__main__'):
-    train_model()
+    #train_model()
     eval_model()
+    eval_model('first_sub_1.pth')
+    eval_model('recent_sub_1_v2.pth')
+    eval_model('lowest_loss.pth')
