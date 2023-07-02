@@ -14,13 +14,16 @@ class EnvironmentReader:
         self.hill_points = None
         self.bird_point = None
 
-    def read(self, screenshot):
+    def read(self, screenshot, window_roi):
         self.screenshot_array = np.array(screenshot)
+        self.window_roi = window_roi
 
         self.update_hill_points(self.screenshot_array)
         self.update_bird_point(screenshot)
 
     def update_hill_points(self, screenshot_array):
+
+        point_threshold_y = 0.9 * self.window_roi[3]
 
         height, width, _ = screenshot_array.shape
 
@@ -35,6 +38,52 @@ class EnvironmentReader:
                 x, y = point[0]
                 if y < hill_points[x][1]: 
                     hill_points[x] = (x, y)
+
+        left_point = None
+        left_point_index = 0
+        right_point = None
+        right_point_index = 0
+
+        #Find left point
+        for i in range(len(hill_points)):
+            point = hill_points[i]
+            if point[1] < point_threshold_y:
+                left_point = point
+                left_point_index = i
+                break
+        
+        #Fill in previous points
+        for i in range(left_point_index):
+            hill_points[i] = (hill_points[i][0], left_point[1])
+
+        #Find right point
+        for i in range(len(hill_points)-1, 0, -1):
+            point = hill_points[i]
+            if point[1] < point_threshold_y:
+                right_point = point
+                right_point_index = i
+                break
+        
+        #Fill in previous points
+        for i in range(left_point_index, 0, -1):
+            hill_points[i] = (hill_points[i][0], right_point[1])
+
+        #Start loop
+        for i in range(left_point_index, len(hill_points)):
+            point = hill_points[i]
+            if point[1] < point_threshold_y:
+                left_point = point
+                continue
+            right_point = hill_points[-1]
+            right_point_index = i + 1
+            while (right_point_index < len(hill_points)):
+                right_point = hill_points[right_point_index]
+                if right_point[1] < point_threshold_y:
+                    break
+                right_point_index += 1
+            
+            for j in range(i, right_point_index):
+                hill_points[j] = (hill_points[j][0], int((left_point[1] + right_point[1]) / 2))
 
         self.hill_points = hill_points
 

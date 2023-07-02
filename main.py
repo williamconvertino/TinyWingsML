@@ -12,6 +12,6 @@ if (__name__ == '__main__'):
     
     while True:
         window_interface.update()
-        environment_reader.read(window_interface.screenshot)
+        environment_reader.read(window_interface.screenshot, window_interface.window_roi)
         environment_reader.visualize_window()
         cv2.waitKey(8)
