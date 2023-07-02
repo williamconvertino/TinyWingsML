@@ -8,8 +8,9 @@ hill_threshold = 220
 class EnvironmentReader:
     def __init__(self):
         self.bird_tracker = BirdTracker()    
-        self.visualizer = None
+        self.step = 0
 
+        self.visualizer = None
         self.screenshot_array = None
         self.hill_points = None
         self.bird_point = None
@@ -20,10 +21,11 @@ class EnvironmentReader:
 
         self.update_hill_points(self.screenshot_array)
         self.update_bird_point(screenshot)
+        
+        self.step += 1
 
     def update_hill_points(self, screenshot_array):
 
-        
         point_threshold_y = 0.95 * self.window_roi[3]
 
         height, width, _ = screenshot_array.shape
@@ -98,6 +100,12 @@ class EnvironmentReader:
 
     def update_bird_point(self, screenshot):
         self.bird_coords = self.bird_tracker.get_coords(screenshot)
+
+    def threshold_debug(self, time=50):
+        global hill_threshold
+        if self.step % time == 0:
+            hill_threshold += 5
+            print(f'Increasing threshold to {hill_threshold}')
 
     def visualize_window(self, hide_image=False):
         if self.visualizer == None:
