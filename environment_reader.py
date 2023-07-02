@@ -23,7 +23,8 @@ class EnvironmentReader:
 
     def update_hill_points(self, screenshot_array):
 
-        point_threshold_y = 0.9 * self.window_roi[3]
+        
+        point_threshold_y = 0.95 * self.window_roi[3]
 
         height, width, _ = screenshot_array.shape
 
@@ -39,6 +40,8 @@ class EnvironmentReader:
                 if y < hill_points[x][1]: 
                     hill_points[x] = (x, y)
 
+        self.hill_points = []
+
         left_point = None
         left_point_index = 0
         right_point = None
@@ -52,6 +55,9 @@ class EnvironmentReader:
                 left_point_index = i
                 break
         
+        if left_point == None:
+            return
+
         #Fill in previous points
         for i in range(left_point_index):
             hill_points[i] = (hill_points[i][0], left_point[1])
@@ -64,6 +70,9 @@ class EnvironmentReader:
                 right_point_index = i
                 break
         
+        if right_point == None:
+            return
+
         #Fill in previous points
         for i in range(left_point_index, 0, -1):
             hill_points[i] = (hill_points[i][0], right_point[1])
