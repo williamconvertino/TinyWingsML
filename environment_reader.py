@@ -1,4 +1,5 @@
 from bird_tracker import BirdTracker
+from game_end_tracker import GameEndTracker
 from visualizer import Visualizer
 import cv2
 import numpy as np
@@ -7,7 +8,8 @@ hill_threshold = 220
 
 class EnvironmentReader:
     def __init__(self):
-        self.bird_tracker = BirdTracker()    
+        self.bird_tracker = BirdTracker()
+        self.game_end_tracker = GameEndTracker()   
         self.step = 0
 
         self.visualizer = None
@@ -18,6 +20,7 @@ class EnvironmentReader:
     def read(self, screenshot, window_roi):
         self.screenshot_array = np.array(screenshot)
         self.window_roi = window_roi
+        self.screenshot = screenshot
 
         self.update_hill_points(self.screenshot_array)
         self.update_bird_point(screenshot)
@@ -101,11 +104,8 @@ class EnvironmentReader:
     def update_bird_point(self, screenshot):
         self.bird_coords = self.bird_tracker.get_coords(screenshot)
 
-    def threshold_debug(self, time=50):
-        global hill_threshold
-        if self.step % time == 0:
-            hill_threshold += 5
-            print(f'Increasing threshold to {hill_threshold}')
+    def is_game_ended(self):
+        return self.game_end_tracker.is_game_ended(self.screenshot)
 
     def visualize_window(self, hide_image=False):
         if self.visualizer == None:

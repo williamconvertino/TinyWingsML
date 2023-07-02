@@ -2,7 +2,8 @@ import pyautogui
 import cv2
 import numpy as np
 
-wa_top, wa_bottom, wa_left, wa_right = 0.08, 0.0, 0.17, 0.06
+# wa_top, wa_bottom, wa_left, wa_right = 0.08, 0.0, 0.17, 0.06
+wa_top, wa_bottom, wa_left, wa_right = 0.08, 0.0, 0.0, 0.06
 
 class WindowInterface:
     def __init__(self, window_title='BlueStacks App Player'):    
@@ -43,7 +44,7 @@ class WindowInterface:
     
         self.screenshot = pyautogui.screenshot(region=self.window_roi)
 
-    def save_screenshot(self, save_root, num_steps = None):
+    def save_screenshot(self, save_root='screenshots/', num_steps = None):
         if num_steps != None and self.steps % num_steps != 0:
             return
         self.screenshot.save(save_root + str(self.screenshot_id) + ".png")
