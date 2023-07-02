@@ -2,8 +2,8 @@ import pyautogui
 import cv2
 import numpy as np
 
-# wa_top, wa_bottom, wa_left, wa_right = 0.08, 0.0, 0.17, 0.06
-wa_top, wa_bottom, wa_left, wa_right = 0.08, 0.0, 0.0, 0.06
+wa_top, wa_bottom, wa_left, wa_right = 0.08, 0.0, 0.17, 0.06
+# wa_top, wa_bottom, wa_left, wa_right = 0.08, 0.0, 0.0, 0.06
 
 class WindowInterface:
     def __init__(self, window_title='BlueStacks App Player'):    

@@ -15,4 +15,4 @@ if (__name__ == '__main__'):
         environment_reader.visualize_window()
         if (environment_reader.is_game_ended()):
             window_interface.restart_game(mode='caught')
-        cv2.waitKey(800)
+        cv2.waitKey(100)

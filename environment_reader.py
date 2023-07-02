@@ -6,11 +6,14 @@ import numpy as np
 
 hill_threshold = 220
 
+sa_top, sa_bottom, sa_left, sa_right = 0.00, 0.92, 0.79, 0.02
+
 class EnvironmentReader:
     def __init__(self):
         self.bird_tracker = BirdTracker()
         self.game_end_tracker = GameEndTracker()   
         self.step = 0
+        self.screenshot_id = 1
 
         self.visualizer = None
         self.screenshot_array = None
@@ -24,6 +27,7 @@ class EnvironmentReader:
 
         self.update_hill_points(self.screenshot_array)
         self.update_bird_point(screenshot)
+        self.update_score(screenshot)
         
         self.step += 1
 
@@ -103,6 +107,20 @@ class EnvironmentReader:
 
     def update_bird_point(self, screenshot):
         self.bird_coords = self.bird_tracker.get_coords(screenshot)
+
+    def update_score(self, screenshot):
+        
+        width, height = screenshot.size
+
+        score_roi_left = int(sa_left * width)
+        score_roi_top = int(sa_top * height)
+        score_roi_right = int((1-sa_right) * width)
+        score_roi_bottom = int((1-sa_bottom) * height)
+
+        score_roi = (score_roi_left, score_roi_top, score_roi_right, score_roi_bottom)
+
+        screenshot.crop(score_roi).save(f'screenshots/{str(self.screenshot_id)}.png')
+        self.screenshot_id += 1
 
     def is_game_ended(self):
         return self.game_end_tracker.is_game_ended(self.screenshot)
