@@ -191,9 +191,6 @@ def eval_model(model_name=model_name):
     
     model.eval()
 
-    # Initialize lists to store percentage difference values (for analyticals)
-    percent_diff = []
-
     # Evaluate the model on the training images
     with torch.no_grad():
         for images, labels in dataloader:
@@ -211,5 +208,5 @@ def eval_model(model_name=model_name):
             print(f'Real: {real_label}, Predicted: {predicted_label}, Correct: {real_label == predicted_label}')
 
 if (__name__ == '__main__'):
-    # train_model()
+    train_model()
     eval_model()

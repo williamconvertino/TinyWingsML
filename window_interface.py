@@ -2,8 +2,8 @@ import pyautogui
 import cv2
 import numpy as np
 
-wa_top, wa_bottom, wa_left, wa_right = 0.08, 0.0, 0.17, 0.06
-# wa_top, wa_bottom, wa_left, wa_right = 0.08, 0.0, 0.0, 0.06
+# wa_top, wa_bottom, wa_left, wa_right = 0.08, 0.0, 0.17, 0.06
+wa_top, wa_bottom, wa_left, wa_right = 0.08, 0.0, 0.0, 0.06
 
 class WindowInterface:
     def __init__(self, window_title='BlueStacks App Player'):    
@@ -62,6 +62,11 @@ class WindowInterface:
 
         self.window_pressed = is_window_pressed
 
+    def start_game(self):
+        pyautogui.mouseDown(self.window_center)
+        cv2.waitKey(80)
+        pyautogui.mouseUp()
+
     def restart_game(self, mode='default'):
         
         if not self.is_window_active:
@@ -70,6 +75,9 @@ class WindowInterface:
         if mode == 'caught':
             x,y = self.window_roi[0] + (0.68 * self.window_roi[2]), self.window_roi[1] + (0.87 * self.window_roi[3])
             pyautogui.click(x,y)
+            
+            cv2.waitKey(100)
+            self.start_game()
         
         if mode == 'default':
             x,y = self.window_roi[0] + (0.98 * self.window_roi[2]), self.window_roi[1] + (0.96 * self.window_roi[3])
@@ -80,3 +88,6 @@ class WindowInterface:
 
             x,y = self.window_roi[0] + (0.55 * self.window_roi[2]), self.window_roi[1] + (0.62 * self.window_roi[3])
             pyautogui.click(x,y)
+            
+            cv2.waitKey(100)
+            self.start_game()

@@ -27,7 +27,7 @@ class EnvironmentReader:
 
         self.update_hill_points(self.screenshot_array)
         self.update_bird_point(screenshot)
-        self.update_score(screenshot)
+        # self.update_score(screenshot)
         
         self.step += 1
 
