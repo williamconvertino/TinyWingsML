@@ -10,7 +10,7 @@ if (__name__ == '__main__'):
     environment_reader = EnvironmentReader()
     window_interface.update()
     window_interface.start_game()
-
+    
     while True:
         window_interface.update()
         environment_reader.update(window_interface.screenshot, window_interface.window_roi)
@@ -20,5 +20,5 @@ if (__name__ == '__main__'):
             window_interface.restart_game(mode='caught')
         else:
             environment_reader.read_environment()
-            #print(environment_reader.score)
+            print(environment_reader.score)
         cv2.waitKey(8)

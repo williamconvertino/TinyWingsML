@@ -13,7 +13,7 @@ dataset_root = 'datasets/score_tracker'
 model_root = 'models/'
 model_name= 'score_tracker.pth'
 
-num_epochs = 100
+num_epochs = 400
 
 class ScoreTracker:
     def __init__(self, model_name=model_name):
@@ -166,8 +166,8 @@ def train_model(model_name=model_name, load_model=False):
 
         print(f'Epoch {epoch + 1}/{num_epochs}, Loss: {average_loss}')
 
-        if epoch == 54:
-            torch.save(model.state_dict(), model_root + 'score_tracker_v4.pth')
+        if epoch % 25 == 0:
+            torch.save(model.state_dict(), model_root + f'score_tracker_{epoch}.pth')
 
         if (average_loss < lowest_average_loss):
             lowest_average_loss = average_loss
@@ -232,5 +232,10 @@ def eval_model(model_name=model_name):
     print(f'Accuracy: {accuracy:.2f}%')
 
 if (__name__ == '__main__'):
-    # train_model()
+    train_model()
     eval_model()
+    eval_model('score_tracker_lowest_loss.pth')
+
+    for i in range(num_epochs):
+        if i%25 == 0:
+            eval_model(f'score_tracker_{i}.pth')

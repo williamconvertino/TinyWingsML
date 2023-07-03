@@ -23,7 +23,6 @@ class Visualizer:
             self.canvas = white_image
         else:
             self.canvas = image
-
             
     def set_bird(self, bird_coords):
         cv2.circle(self.canvas, bird_coords, 5, (0, 0, 255), -1)

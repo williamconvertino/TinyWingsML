@@ -8,7 +8,7 @@ import numpy as np
 hill_threshold = 220
 
 #sa_top, sa_bottom, sa_left, sa_right = 0.00, 0.92, 0.79, 0.02
-sa_top, sa_bottom, sa_left, sa_right = 0.00, 0.92, 0.88, 0.02
+sa_top, sa_bottom, sa_left, sa_right = 0.00, 0.92, 0.885, 0.02
 
 class EnvironmentReader:
     def __init__(self):
