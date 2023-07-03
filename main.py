@@ -13,10 +13,12 @@ if (__name__ == '__main__'):
 
     while True:
         window_interface.update()
-        environment_reader.read(window_interface.screenshot, window_interface.window_roi)
-        # environment_reader.visualize_window(hide_image=True)
-        window_interface.save_screenshot()
+        environment_reader.update(window_interface.screenshot, window_interface.window_roi)
+
         if (environment_reader.is_game_ended()):
             print("Round Ended")
             window_interface.restart_game(mode='caught')
-        cv2.waitKey(100)
+        else:
+            environment_reader.read_environment()
+            #print(environment_reader.score)
+        cv2.waitKey(8)

@@ -1,17 +1,20 @@
 from bird_tracker import BirdTracker
 from game_end_tracker import GameEndTracker
+from score_tracker import ScoreTracker
 from visualizer import Visualizer
 import cv2
 import numpy as np
 
 hill_threshold = 220
 
-sa_top, sa_bottom, sa_left, sa_right = 0.00, 0.92, 0.79, 0.02
+#sa_top, sa_bottom, sa_left, sa_right = 0.00, 0.92, 0.79, 0.02
+sa_top, sa_bottom, sa_left, sa_right = 0.00, 0.92, 0.88, 0.02
 
 class EnvironmentReader:
     def __init__(self):
         self.bird_tracker = BirdTracker()
-        self.game_end_tracker = GameEndTracker()   
+        self.game_end_tracker = GameEndTracker()
+        self.score_tracker = ScoreTracker()
         self.step = 0
         self.screenshot_id = 1
 
@@ -19,27 +22,28 @@ class EnvironmentReader:
         self.screenshot_array = None
         self.hill_points = None
         self.bird_point = None
+        self.score = 0
 
-    def read(self, screenshot, window_roi):
+    def update(self, screenshot, window_roi):
         self.screenshot_array = np.array(screenshot)
         self.window_roi = window_roi
         self.screenshot = screenshot
-
-        self.update_hill_points(self.screenshot_array)
-        self.update_bird_point(screenshot)
-        # self.update_score(screenshot)
-        
         self.step += 1
 
-    def update_hill_points(self, screenshot_array):
+    def read_environment(self):
+        self.update_hill_points()
+        self.update_bird_point()
+        self.update_score()
+
+    def update_hill_points(self):
 
         point_threshold_y = 0.95 * self.window_roi[3]
 
-        height, width, _ = screenshot_array.shape
+        height, width, _ = self.screenshot_array.shape
 
         hill_points = [(i, height) for i in range(width)]
 
-        grayscale_image = cv2.cvtColor(screenshot_array, cv2.COLOR_BGR2GRAY)
+        grayscale_image = cv2.cvtColor(self.screenshot_array, cv2.COLOR_BGR2GRAY)
         _, binary = cv2.threshold(grayscale_image, hill_threshold, 255, cv2.THRESH_BINARY)
         contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
@@ -105,22 +109,33 @@ class EnvironmentReader:
 
         self.hill_points = hill_points
 
-    def update_bird_point(self, screenshot):
-        self.bird_coords = self.bird_tracker.get_coords(screenshot)
+    def update_bird_point(self):
+        self.bird_coords = self.bird_tracker.get_coords(self.screenshot)
 
-    def update_score(self, screenshot):
+    def update_score(self):
         
-        width, height = screenshot.size
+        width, height = self.screenshot.size
 
         score_roi_left = int(sa_left * width)
         score_roi_top = int(sa_top * height)
         score_roi_right = int((1-sa_right) * width)
         score_roi_bottom = int((1-sa_bottom) * height)
 
-        score_roi = (score_roi_left, score_roi_top, score_roi_right, score_roi_bottom)
+        num_digits = 4
+        digit_width = (score_roi_right-score_roi_left)/num_digits
+        
+        score = ''
 
-        screenshot.crop(score_roi).save(f'screenshots/{str(self.screenshot_id)}.png')
-        self.screenshot_id += 1
+        for i in range(num_digits):
+            score_roi = (score_roi_left + (i * digit_width), score_roi_top, score_roi_left + ((i+1) * digit_width), score_roi_bottom)
+            score += str(self.score_tracker.get_score(self.screenshot.crop(score_roi)))
+            self.screenshot_id += 1
+        
+        score = int(score)
+        if score >= self.score:
+            self.score = score
+        else:
+            print("Score has been miscalculated.")
 
     def is_game_ended(self):
         return self.game_end_tracker.is_game_ended(self.screenshot)

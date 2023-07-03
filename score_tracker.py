@@ -13,7 +13,7 @@ dataset_root = 'datasets/score_tracker'
 model_root = 'models/'
 model_name= 'score_tracker.pth'
 
-num_epochs = 400
+num_epochs = 100
 
 class ScoreTracker:
     def __init__(self, model_name=model_name):
@@ -28,11 +28,16 @@ class ScoreTracker:
         ])
 
     def get_score(self, image):
-        image_tensor = self.transform(image).unsqueeze(0).to(self.device)
+        image_tensor = self.transform(image.convert('L')).unsqueeze(0).to(self.device)
+        
         with torch.no_grad():
             output = self.model(image_tensor)
-            
-        #TODO: Return the predicted score
+            output = torch.max(output, 1)[1][0].item()
+
+        if output == 10:
+            return 0
+        else:
+            return output
 
 class ScoreTrackerModel(nn.Module):
     def __init__(self):
@@ -58,7 +63,7 @@ class ScoreTrackerModel(nn.Module):
             nn.ReLU(),
             nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Linear(64, 1)  # Output size 1 for the predicted score
+            nn.Linear(64, 11)  # Output size 11 for the digit confidences
         )
 
     def forward(self, x):
@@ -110,7 +115,7 @@ class ScoreTrackerDataset(Dataset):
 
         # Get the additional value associated with the image
         value = self.additional_values[index]
-        value = torch.tensor(value, dtype=torch.long).view(1)
+        value = torch.tensor(value, dtype=torch.long)
 
         return image, value
     
@@ -122,7 +127,7 @@ def train_model(model_name=model_name, load_model=False):
         transforms.ToTensor(),
     ])
 
-    dataset = ScoreTrackerDataset(dataset_root + '/test', transform, dataset_size=70)    
+    dataset = ScoreTrackerDataset(dataset_root + '/train', transform, dataset_size=72)    
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=16, shuffle=True)
 
     # Define model
@@ -130,7 +135,7 @@ def train_model(model_name=model_name, load_model=False):
     model.train()
 
     # Define loss function and optimizer
-    criterion = nn.MSELoss()
+    criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -144,7 +149,7 @@ def train_model(model_name=model_name, load_model=False):
 
         for images, labels in dataloader:
             images = images.to(device)
-            labels = labels.to(device).float()
+            labels = labels.to(device)
 
             # Forward pass
             outputs = model(images)
@@ -160,6 +165,9 @@ def train_model(model_name=model_name, load_model=False):
         average_loss = total_loss / len(dataloader)
 
         print(f'Epoch {epoch + 1}/{num_epochs}, Loss: {average_loss}')
+
+        if epoch == 54:
+            torch.save(model.state_dict(), model_root + 'score_tracker_v4.pth')
 
         if (average_loss < lowest_average_loss):
             lowest_average_loss = average_loss
@@ -182,7 +190,7 @@ def eval_model(model_name=model_name):
     ])
 
     # Create the dataset and dataloader
-    dataset = ScoreTrackerDataset(dataset_root + "/test", transform, dataset_size=70)
+    dataset = ScoreTrackerDataset(dataset_root + "/test", transform, dataset_size=30)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
     # Load the trained model
@@ -193,7 +201,7 @@ def eval_model(model_name=model_name):
     model.to(device)
     
     model.eval()
-    criterion = nn.MSELoss()
+    criterion = nn.CrossEntropyLoss()
 
     total_loss = 0.0
     correct_predictions = 0
@@ -210,13 +218,12 @@ def eval_model(model_name=model_name):
         loss = criterion(outputs, labels)
         total_loss += loss.item()
 
-        # Convert predictions and labels to integers
-        predictions = int(round(outputs.item()))
-        labels = labels.item()
-
+        # Get predicted classes
+        _, predicted_classes = torch.max(outputs, 1)
+        
         # Count correct predictions
-        correct_predictions += 1 if predictions == labels else 0
-        total_predictions += 1
+        correct_predictions += (predicted_classes == labels).sum().item()
+        total_predictions += labels.size(0)
 
     average_loss = total_loss / len(dataloader)
     accuracy = correct_predictions / total_predictions * 100.0
@@ -227,4 +234,3 @@ def eval_model(model_name=model_name):
 if (__name__ == '__main__'):
     # train_model()
     eval_model()
-    eval_model('score_tracker_lowest_loss.pth')
