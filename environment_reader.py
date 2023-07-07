@@ -106,7 +106,7 @@ class EnvironmentReader:
             for j in range(i, right_point_index):
                 hill_points[j] = (hill_points[j][0], int((left_point[1] + right_point[1]) / 2))
 
-        self.hill_points = hill_points
+        self.hill_points = [point[1] for point in hill_points]
         self.visualizer.set_hills(self.hill_points)
 
     def update_bird_point(self):
@@ -141,12 +141,14 @@ class EnvironmentReader:
 
         score = int(score)
         if score < self.score:
-            print("WARN: Score decreased")
+            #print("WARN: Score decreased")
+            pass
         elif score - self.score > 50:
-            print("WARN: Score increase too high")
+            #print("WARN: Score increase too high")
+            pass
         else:
             self.score = score
-            print(score)
+            #print(score)
 
     def is_game_ended(self):
         return self.game_end_tracker.is_game_ended(self.window_interface.screenshot)

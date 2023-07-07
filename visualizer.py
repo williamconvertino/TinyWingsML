@@ -40,8 +40,8 @@ class Visualizer:
         cv2.circle(self.canvas, bird_coords, 5, (0, 0, 255), -1)
 
     def set_hills(self, hill_points):
-        for point in hill_points:
-            cv2.circle(self.canvas, point, 2, (0, 255, 0), -1)
+        for x in range(len(hill_points)):
+            cv2.circle(self.canvas, (x, hill_points[x]), 2, (0, 255, 0), -1)
 
     def show(self):
         cv2.resizeWindow(self.window_name, self.window_size)
