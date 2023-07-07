@@ -24,6 +24,7 @@ class ScoreTracker:
         self.model.eval()
         self.transform = transforms.Compose([
             transforms.Resize((224, 224)),
+
             transforms.ToTensor(),
         ])
 
@@ -127,7 +128,7 @@ def train_model(model_name=model_name, load_model=False):
         transforms.ToTensor(),
     ])
 
-    dataset = ScoreTrackerDataset(dataset_root + '/train', transform, dataset_size=72)    
+    dataset = ScoreTrackerDataset(dataset_root + '/train', transform, dataset_size=381)    
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=16, shuffle=True)
 
     # Define model
@@ -190,7 +191,7 @@ def eval_model(model_name=model_name):
     ])
 
     # Create the dataset and dataloader
-    dataset = ScoreTrackerDataset(dataset_root + "/test", transform, dataset_size=30)
+    dataset = ScoreTrackerDataset(dataset_root + "/test", transform, dataset_size=46)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
     # Load the trained model
@@ -237,5 +238,5 @@ if (__name__ == '__main__'):
     eval_model('score_tracker_lowest_loss.pth')
 
     for i in range(num_epochs):
-        if i%25 == 0:
+        if i <= 250 and i%25 == 0:
             eval_model(f'score_tracker_{i}.pth')
