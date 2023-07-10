@@ -9,7 +9,7 @@ class Visualizer:
         self.window_name = window_name
         self.hide_image = hide_image
         self.canvas = None
-        cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+        self.window = None
 
     def set_image_array(self, image_array):
         
@@ -44,5 +44,8 @@ class Visualizer:
             cv2.circle(self.canvas, (x, hill_points[x]), 2, (0, 255, 0), -1)
 
     def show(self):
+        if self.window == None:
+            self.window = cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
+
         cv2.resizeWindow(self.window_name, self.window_size)
         cv2.imshow(self.window_name, self.canvas)

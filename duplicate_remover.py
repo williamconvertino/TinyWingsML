@@ -10,7 +10,7 @@ def calculate_hash(image_path):
     return hash_value
 
 # Directory path containing the PNG images
-directory = 'datasets/score_tracker/test'
+directory = 'screenshots'
 
 # Create a dictionary to store hash values and corresponding file paths
 hashes = {}

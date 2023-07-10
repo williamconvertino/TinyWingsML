@@ -72,7 +72,7 @@ class WindowInterface:
         cv2.waitKey(80)
         pyautogui.mouseUp()
 
-    def restart_game(self, mode='default'):
+    def restart_game(self, mode='caught'):
         
         if not self.is_window_active:
             return
@@ -80,11 +80,8 @@ class WindowInterface:
         if mode == 'caught':
             x,y = self.window_roi[0] + (0.68 * self.window_roi[2]), self.window_roi[1] + (0.87 * self.window_roi[3])
             pyautogui.click(x,y)
-            
-            cv2.waitKey(100)
-            self.start_game()
         
-        if mode == 'default':
+        if mode == 'pause':
             x,y = self.window_roi[0] + (0.98 * self.window_roi[2]), self.window_roi[1] + (0.96 * self.window_roi[3])
             pyautogui.click(x,y)
 
@@ -93,6 +90,6 @@ class WindowInterface:
 
             x,y = self.window_roi[0] + (0.55 * self.window_roi[2]), self.window_roi[1] + (0.62 * self.window_roi[3])
             pyautogui.click(x,y)
-            
-            cv2.waitKey(100)
-            self.start_game()
+
+        cv2.waitKey(100)
+        #NOTE: Need to use cv2.waitKey(100) after click() or else start_game wont work

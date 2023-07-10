@@ -20,21 +20,27 @@ class Brain():
         self.num_episode = 0
         self.action = 0
         self.episode_start_time = 0
+        self.episode_active = False
 
     def update_reward(self, score):
         elapsed_time = time.time() - self.episode_start_time
         self.reward = score * 0.1 - elapsed_time * 0.01
 
     def start_episode(self):
+        self.episode_active = True
         self.episode_reward = 0
         self.prev_hill_points = None
         self.prev_bird_position = None
         self.episode_start_time = time.time()
-    
-    def end_episode(self):
-        print(f"Episode: {self.num_episode + 1}, Total Reward: {self.episode_reward}")
-        self.agent.update_epsilon(self.num_episode)
         self.num_episode += 1
+        print(f"Starting episode {self.num_episode}")
+
+    def end_episode(self):
+        if self.episode_active == False:
+            return
+        self.episode_active = False
+        print(f"Episode: {self.num_episode}, Total Reward: {self.episode_reward}")
+        self.agent.update_epsilon(self.num_episode)
         self.episode_start_time = time.time()
 
     def add_observation(self, hill_points, bird_position):

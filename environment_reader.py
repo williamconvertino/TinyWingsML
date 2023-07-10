@@ -1,5 +1,5 @@
 from bird_tracker import BirdTracker
-from game_end_tracker import GameEndTracker
+from game_state_tracker import GameStateTracker
 from score_tracker import ScoreTracker
 from visualizer import Visualizer
 import cv2
@@ -16,7 +16,7 @@ class EnvironmentReader:
     def __init__(self, window_interface):
         self.visualizer = Visualizer("Bird Visualization", hide_image=True)
         self.bird_tracker = BirdTracker()
-        self.game_end_tracker = GameEndTracker()
+        self.game_state_tracker = GameStateTracker()
         self.score_tracker = ScoreTracker()
         self.window_interface = window_interface
         self.step = 0
@@ -24,6 +24,7 @@ class EnvironmentReader:
 
         self.hill_points = None
         self.bird_point = None
+        self.game_state = None
         self.score = 0
 
     def read_environment(self):
@@ -31,6 +32,7 @@ class EnvironmentReader:
         self.update_hill_points()
         self.update_bird_point()
         self.update_score()
+        self.update_game_state()
 
     def update_hill_points(self):
 
@@ -150,8 +152,8 @@ class EnvironmentReader:
             self.score = score
             #print(score)
 
-    def is_game_ended(self):
-        return self.game_end_tracker.is_game_ended(self.window_interface.screenshot)
+    def update_game_state(self):
+        self.game_state = self.game_state_tracker.get_state(self.window_interface.screenshot)
 
     def visualize_window(self):
         self.visualizer.show()
